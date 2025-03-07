@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gen_task/core/constants/colors.dart';
 
 class TaskEditScreen extends StatefulWidget {
   final String taskId;
@@ -11,6 +12,17 @@ class TaskEditScreen extends StatefulWidget {
 class _TaskEditScreenState extends State<TaskEditScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Edit",
+          style: TextStyle(
+            color: AppColors.textBrand,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: AppColors.primaryColor,
+      ),
+    );
   }
 }

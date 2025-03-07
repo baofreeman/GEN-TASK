@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:gen_task/core/constants/colors.dart';
 import 'package:gen_task/core/router/app_router.dart';
-import 'package:gen_task/core/utils/helper.dart';
 import 'package:gen_task/presentation/bloc/tasks/task_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  print('OPENAI_API_KEY: $apiKey');
+  usePathUrlStrategy();
+
   runApp(const MyApp());
 }
 
@@ -18,11 +20,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      builder:
-          (context, child) => BlocProvider(
-            create: (context) => TaskBloc(),
-            child: ResponsiveBreakpoints.builder(
+    return BlocProvider(
+      create: (context) => TaskBloc(),
+      child: MaterialApp.router(
+        builder:
+            (context, child) => ResponsiveBreakpoints.builder(
               child: child!,
               breakpoints: [
                 const Breakpoint(start: 0, end: 450, name: MOBILE),
@@ -31,13 +33,13 @@ class MyApp extends StatelessWidget {
                 const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
               ],
             ),
-          ),
-      theme: ThemeData(
-        primaryColor: AppColors.primaryColor,
-        scaffoldBackgroundColor: AppColors.brandColor,
+        theme: ThemeData(
+          primaryColor: AppColors.primaryColor,
+          scaffoldBackgroundColor: AppColors.brandColor,
+        ),
+        debugShowCheckedModeBanner: false,
+        routerConfig: AppRouter.router,
       ),
-      debugShowCheckedModeBanner: false,
-      routerConfig: AppRouter.router,
     );
   }
 }

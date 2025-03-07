@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 class AppRouter {
   static final router = GoRouter(
     initialLocation: '/',
+    debugLogDiagnostics: true,
     routes: [
       GoRoute(path: '/', builder: (context, state) => TaskCreateScreen()),
       GoRoute(path: '/list', builder: (context, state) => TaskListScreen()),

@@ -40,7 +40,13 @@ dependencies:
   http: ^1.3.0
   # env
   flutter_dotenv: ^5.0.0
+  # url
+  flutter_web_plugins:
+    sdk: flutter
+  # data
+  shared_preferences: ^2.2.2
 
+  equatable: ^2.0.7
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
