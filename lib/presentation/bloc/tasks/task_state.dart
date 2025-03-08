@@ -1,6 +1,12 @@
+import 'package:equatable/equatable.dart';
 import 'package:gen_task/core/models/task.dart';
 
-abstract class TaskState {}
+abstract class TaskState extends Equatable {
+  const TaskState();
+
+  @override
+  List<Object?> get props => [];
+}
 
 class TaskInitial extends TaskState {}
 
@@ -9,11 +15,17 @@ class TaskLoading extends TaskState {}
 class TaskLoaded extends TaskState {
   final List<Task> tasks;
 
-  TaskLoaded(this.tasks);
+  const TaskLoaded(this.tasks);
+
+  @override
+  List<Object?> get props => [tasks];
 }
 
 class TaskError extends TaskState {
   final String message;
 
-  TaskError(this.message);
+  const TaskError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

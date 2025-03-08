@@ -15,7 +15,6 @@ class TaskCreateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final titleController = TextEditingController();
     final descriptionController = TextEditingController();
-    String _generatedContent = 'Generated content will appear here...';
 
     return Scaffold(
       appBar: AppBar(
@@ -36,111 +35,148 @@ class TaskCreateScreen extends StatelessWidget {
           child: ResponsiveRowColumn(
             layout:
                 ResponsiveBreakpoints.of(context).smallerThan(TABLET)
-                    ? ResponsiveRowColumnType.COLUMN
-                    : ResponsiveRowColumnType.ROW,
+                    ? ResponsiveRowColumnType.ROW
+                    : ResponsiveRowColumnType.COLUMN,
+            rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
             columnSpacing: AppSpacing.md,
+            rowSpacing: AppSpacing.md,
             children: [
               ResponsiveRowColumnItem(
                 rowFlex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppColors.textSecondary,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(AppSpacing.md),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Task Details",
-                              style: TextStyle(
-                                fontSize: AppSpacing.lg,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            SizedBox(height: AppSpacing.md),
-                            TextFormField(
-                              controller: titleController,
-                              decoration: InputDecoration(
-                                labelText: "Title",
-                                labelStyle: TextStyle(
-                                  color: AppColors.textPrimary,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: AppSpacing.md),
-                            TextFormField(
-                              controller: descriptionController,
-                              decoration: InputDecoration(
-                                labelText: "Description",
-                                labelStyle: TextStyle(
-                                  color: AppColors.textPrimary,
-                                ),
-
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: AppColors.primaryColor,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: AppColors.textSecondary,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              maxLines: 3,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: AppSpacing.md),
-
-                    Expanded(
-                      child: BlocBuilder<TaskBloc, TaskState>(
-                        builder: (context, state) {
-                          print('BlocBuilder state: $state');
-                          return _buildTaskState(context, state);
-                        },
-                      ),
-                    ),
-
-                    SizedBox(height: AppSpacing.lg),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                  child: Padding(
+                    padding: EdgeInsets.all(AppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        _buildCancelButton(context),
-                        SizedBox(width: AppSpacing.lg),
-                        _buildGenerateButton(
-                          context,
-                          titleController,
-                          descriptionController,
+                        Text(
+                          "Task Details",
+                          style: TextStyle(
+                            fontSize: AppSpacing.lg,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(height: AppSpacing.md),
+                        TextFormField(
+                          controller: titleController,
+                          decoration: InputDecoration(
+                            labelText: "Title",
+                            labelStyle: TextStyle(color: AppColors.textPrimary),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: AppColors.textSecondary,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: AppColors.primaryColor,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: AppSpacing.md),
+                        TextFormField(
+                          controller: descriptionController,
+                          decoration: InputDecoration(
+                            labelText: "Description",
+                            labelStyle: TextStyle(color: AppColors.textPrimary),
+
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: AppColors.textSecondary,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: AppColors.primaryColor,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          maxLines: 3,
                         ),
                       ],
                     ),
-                  ],
+                  ),
+                ),
+              ),
+
+              ResponsiveRowColumnItem(
+                rowFlex: 1,
+
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                  child: Padding(
+                    padding: EdgeInsets.all(AppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Generated Content',
+                          style: TextStyle(
+                            fontSize: AppSpacing.lg,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        SizedBox(height: AppSpacing.md),
+                        Container(
+                          constraints: BoxConstraints(
+                            maxHeight: MediaQuery.of(context).size.height * .25,
+                          ),
+                          width: double.infinity,
+                          height: double.infinity,
+                          padding: EdgeInsets.all(AppSpacing.md),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColors.textSecondary,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.brandColor.withOpacity(.1),
+                          ),
+                          child: SingleChildScrollView(
+                            child: BlocBuilder<TaskBloc, TaskState>(
+                              builder: (context, state) {
+                                return _buildTaskState(context, state);
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              ResponsiveRowColumnItem(
+                child: Padding(
+                  padding: EdgeInsets.only(top: AppSpacing.lg),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildCancelButton(context),
+
+                      SizedBox(width: AppSpacing.md),
+
+                      _buildGenerateButton(
+                        context,
+                        titleController,
+                        descriptionController,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -156,7 +192,21 @@ Widget _buildCancelButton(BuildContext context) {
     onPressed: () {
       context.go('/list');
     },
-    child: Text("Cancel", style: TextStyle(color: AppColors.error)),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Color.fromARGB(255, 23, 146, 35),
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
+    ),
+    child: Text(
+      'List',
+      style: TextStyle(
+        color: AppColors.textBrand,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
   );
 }
 
@@ -176,9 +226,9 @@ Widget _buildGenerateButton(
         context.read<TaskBloc>().add(
           AddTask(title: title, description: description),
         );
-        Future.delayed(Duration(milliseconds: 500), () {
-          context.go('/list');
-        });
+        // Future.delayed(Duration(milliseconds: 500), () {
+        //   context.go('/list');
+        // });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please fill in all fields')),
@@ -189,15 +239,22 @@ Widget _buildGenerateButton(
       backgroundColor: AppColors.primaryColor,
       padding: EdgeInsets.symmetric(
         horizontal: AppSpacing.lg,
-        vertical: AppSpacing.sm,
+        vertical: AppSpacing.md,
       ),
     ),
-    child: Text('Generate', style: TextStyle(color: AppColors.textBrand)),
+    child: Text(
+      'Generate',
+      style: TextStyle(
+        color: AppColors.textBrand,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+      ),
+    ),
   );
 }
 
 Widget _buildTaskState(BuildContext context, TaskState state) {
-  String content = '';
+  String content = 'Generated content will appear here...';
   Color textColor = AppColors.textPrimary;
   bool isCentered = false;
   if (state is TaskInitial) {
@@ -214,59 +271,9 @@ Widget _buildTaskState(BuildContext context, TaskState state) {
     content = "No content to display";
   }
 
-  double maxHeight = MediaQuery.of(context).size.height * .5;
-
-  return Container(
-    padding: EdgeInsets.all(AppSpacing.md),
-    decoration: BoxDecoration(
-      border: Border.all(color: AppColors.textSecondary, width: 1),
-      borderRadius: BorderRadius.circular(12),
-      color: AppColors.brandColor,
-      boxShadow: [
-        BoxShadow(
-          color: AppColors.textPrimary.withOpacity(0.2),
-          spreadRadius: 2,
-          blurRadius: 4,
-          offset: Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment:
-          isCentered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Generated Content",
-          style: TextStyle(
-            fontSize: AppSpacing.lg,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
-
-        SizedBox(height: AppSpacing.md),
-
-        Expanded(
-          child: SingleChildScrollView(
-            child: Container(
-              constraints: BoxConstraints(maxHeight: maxHeight),
-              width: double.infinity,
-              height: double.infinity,
-              padding: EdgeInsets.all(AppSpacing.md),
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.textSecondary, width: 1),
-                borderRadius: BorderRadius.circular(12),
-                color: AppColors.textSecondary,
-              ),
-              child: Text(
-                content,
-                style: TextStyle(fontSize: AppSpacing.md, color: textColor),
-                textAlign: isCentered ? TextAlign.center : TextAlign.left,
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
+  return Text(
+    content,
+    style: TextStyle(fontSize: AppSpacing.md, color: textColor),
+    textAlign: isCentered ? TextAlign.center : TextAlign.left,
   );
 }

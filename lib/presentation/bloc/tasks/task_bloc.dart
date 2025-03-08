@@ -14,23 +14,47 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     on<AddTask>(_onAddTask);
     on<LoadTasks>(_onLoadTasks);
     on<DeleteTask>(_onDeleteTask);
-    _loadSaveTasks();
+    on<EditTask>(_onEditTask);
+    on<RegenerateTask>(_onRegenerateTask);
+    _loadInitialTasks();
   }
-  final List<Task> _tasks = [];
 
-  // Future<void> _loadSaveTasks() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final tasksJson = prefs.getStringList('tasks');
-  //   if(tasksJson != null) {
-  //     _tasks.addAll(tasksJson.map((json) => Task.fromJson(jsonDecode(json))));
-  //     emit(TasksLoaded(List.from(_tasks)));
-  //   }
-  // }
+  List<Task> _tasks = [];
+
+  Future<void> _loadInitialTasks() async {
+    emit(TaskLoading());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final taskJson = prefs.getStringList('tasks') ?? [];
+      _tasks = taskJson.map((json) => Task.fromJson(jsonDecode(json))).toList();
+      emit(TaskLoaded(List.from(_tasks)));
+    } catch (e) {
+      emit(TaskError('Failed to load tasks: $e'));
+    }
+  }
+
+  Future<void> _onEditTask(EditTask event, Emitter<TaskState> emit) async {
+    emit(TaskLoading());
+    try {
+      final index = _tasks.indexWhere((task) => task.id == event.editTask.id);
+      if (index != -1) {
+        _tasks[index] = event.editTask;
+        await _saveTasks(_tasks);
+        emit(TaskLoaded(List.from(_tasks)));
+      } else {
+        emit(TaskError("Task not found"));
+      }
+    } catch (e) {
+      emit(TaskError('Faile to edit task $e'));
+    }
+  }
 
   Future<void> _onLoadTasks(LoadTasks event, Emitter<TaskState> emit) async {
     emit(TaskLoading());
     try {
-      await Future.delayed(Duration(milliseconds: 500));
+      final pref = await SharedPreferences.getInstance();
+      final taskJson = pref.getStringList('tasks') ?? [];
+      _tasks = taskJson.map((json) => Task.fromJson(jsonDecode(json))).toList();
       emit(TaskLoaded(List.from(_tasks)));
     } catch (e) {
       print('Error in _onLoadedTasks: $e');
@@ -56,7 +80,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
       print('New task created: $newTask');
       _tasks.add(newTask);
-      await _saveTasks();
+      await _saveTasks(_tasks);
       print('Tasks after add: $_tasks');
       emit(TaskLoaded(List.from(_tasks)));
       print('Emitting TaskLoaded with tasks: $_tasks');
@@ -66,11 +90,34 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
+  Future<void> _onRegenerateTask(RegenerateTask event, Emitter emit) async {
+    emit(TaskLoading());
+    try {
+      final index = _tasks.indexWhere((task) => task.id == event.taskId);
+      if (index != -1) {
+        final currentTask = _tasks[index];
+        final editTask = Task(
+          id: currentTask.id,
+          title: event.title,
+          description: event.description,
+          content: await _generateWithOpenAI(event.title, event.description),
+        );
+        _tasks[index] = editTask;
+        await _saveTasks(_tasks);
+        emit(TaskLoaded(List.from(_tasks)));
+      } else {
+        emit(TaskError('Task not found'));
+      }
+    } catch (e) {
+      emit(TaskError('Failed to regenerate task: $e'));
+    }
+  }
+
   Future<void> _onDeleteTask(DeleteTask event, Emitter emit) async {
     emit(TaskLoading());
     try {
       _tasks.removeWhere((task) => task.id == event.id);
-      await _saveTasks();
+      await _saveTasks(_tasks);
       emit(TaskLoaded(_tasks));
     } catch (e) {
       print("Cannot delete task $e");
@@ -118,28 +165,13 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
-  Future<void> _saveTasks() async {
+  Future<void> _saveTasks(List<Task> tasks) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final tasksJson =
-          _tasks.map((task) => jsonEncode(task.toJson())).toList();
+      final tasksJson = tasks.map((task) => jsonEncode(task.toJson())).toList();
       await prefs.setStringList('tasks', tasksJson);
     } catch (e) {
       print('Error in _saveTasks: $e');
-    }
-  }
-
-  Future<void> _loadSaveTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final taskJson = prefs.getStringList('tasks');
-    if (taskJson != null) {
-      try {
-        _tasks.clear();
-        _tasks.addAll(taskJson.map((json) => Task.fromJson(jsonDecode(json))));
-        emit(TaskLoaded(List.from(_tasks)));
-      } catch (e) {
-        emit(TaskError('Failed to load task $e'));
-      }
     }
   }
 }
