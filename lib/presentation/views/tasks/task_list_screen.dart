@@ -39,22 +39,23 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     Future.delayed(Duration(milliseconds: 500), () {
-                      context.go('/');
+                      context.go('/create');
                     });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
                     padding: EdgeInsets.symmetric(
                       horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.sm,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      vertical: AppSpacing.md,
                     ),
                   ),
                   child: Text(
                     '+ Create New Task',
-                    style: TextStyle(color: AppColors.textBrand),
+                    style: TextStyle(
+                      color: AppColors.textBrand,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -142,6 +143,9 @@ Widget _buildTaskState(BuildContext context, TaskState state) {
                 ElevatedButton(
                   onPressed: () {
                     context.read<TaskBloc>().add(DeleteTask(task.id));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Task deleted successfully!')),
+                    );
                     print('Delete task: ${task.id}');
                   },
                   style: ElevatedButton.styleFrom(

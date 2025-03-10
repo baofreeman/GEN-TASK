@@ -1,3 +1,4 @@
+import 'package:gen_task/presentation/views/tasks/home_screen.dart';
 import 'package:gen_task/presentation/views/tasks/task_create_screen.dart';
 import 'package:gen_task/presentation/views/tasks/task_edit_screen.dart';
 import 'package:gen_task/presentation/views/tasks/task_list_screen.dart';
@@ -8,7 +9,8 @@ class AppRouter {
     initialLocation: '/',
     debugLogDiagnostics: true,
     routes: [
-      GoRoute(path: '/', builder: (context, state) => TaskCreateScreen()),
+      GoRoute(path: '/', builder: (context, state) => HomeScreen()),
+      GoRoute(path: '/create', builder: (context, state) => TaskCreateScreen()),
       GoRoute(path: '/list', builder: (context, state) => TaskListScreen()),
       GoRoute(
         path: '/edit/:id',

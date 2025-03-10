@@ -57,13 +57,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       _tasks = taskJson.map((json) => Task.fromJson(jsonDecode(json))).toList();
       emit(TaskLoaded(List.from(_tasks)));
     } catch (e) {
-      print('Error in _onLoadedTasks: $e');
       emit(TaskError('Failed to load task: ${e.toString()}'));
     }
   }
 
   Future<void> _onAddTask(AddTask event, Emitter<TaskState> emit) async {
-    print('Emitting TaskLoaded with tasks: $_tasks');
     emit(TaskLoading());
     try {
       final generatedDesc = await _generateWithOpenAI(
@@ -78,14 +76,10 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         content: generatedDesc,
       );
 
-      print('New task created: $newTask');
       _tasks.add(newTask);
       await _saveTasks(_tasks);
-      print('Tasks after add: $_tasks');
       emit(TaskLoaded(List.from(_tasks)));
-      print('Emitting TaskLoaded with tasks: $_tasks');
     } catch (e) {
-      print('Error in _onAddTask: $e');
       emit(TaskError('Failed to generate task: ${e.toString()}'));
     }
   }
@@ -103,6 +97,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
           content: await _generateWithOpenAI(event.title, event.description),
         );
         _tasks[index] = editTask;
+        print('$_tasks');
         await _saveTasks(_tasks);
         emit(TaskLoaded(List.from(_tasks)));
       } else {
@@ -120,14 +115,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       await _saveTasks(_tasks);
       emit(TaskLoaded(_tasks));
     } catch (e) {
-      print("Cannot delete task $e");
       emit(TaskError('Failed to delete task: $e'));
     }
   }
 
   Future<String?> _generateWithOpenAI(String title, String description) async {
     if (apiKey.isEmpty) {
-      print('API Key is missing or empty');
       return null;
     }
     try {
@@ -144,23 +137,21 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
           "messages": [
             {
               "role": "user",
-              "content": "Create task details with $title and $description",
+              "content":
+                  "Create task details with $title and $description Returns results that match the language of the title and description",
             },
           ],
         }),
       );
 
       if (res.statusCode == 200) {
-        final data = jsonDecode(res.body);
-        final content = data['choices'][0]['message']['content'] as String?;
-        print('Generated content: $content');
+        final data = jsonDecode(utf8.decode(res.bodyBytes));
+        final content = data['choices'][0]['message']['content'];
         return content;
       } else {
-        print('Failed to call OpenAI API: ${res.statusCode} - ${res.body}');
         return null;
       }
     } catch (e) {
-      print('Error calling OpenAI API: $e');
       return null;
     }
   }

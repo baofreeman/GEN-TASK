@@ -7,4 +7,5 @@ class AppColors {
   static const Color textPrimary = Color(0xFF14181B);
   static const Color textSecondary = Color(0xFF757575);
   static const Color error = Color(0xFFFF5963);
+  static const Color secondaryColor = Color(0xFFF1F4F8);
 }

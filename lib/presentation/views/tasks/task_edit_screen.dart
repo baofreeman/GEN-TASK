@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:gen_task/core/constants/colors.dart';
 import 'package:gen_task/core/constants/spacing.dart';
 import 'package:gen_task/core/models/task.dart';
@@ -25,10 +26,17 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
   @override
   void initState() {
     super.initState();
-
     _titleController = TextEditingController();
     _descriptionController = TextEditingController();
     _contentController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _contentController.dispose();
+    super.dispose();
   }
 
   @override
@@ -69,14 +77,17 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                 child: ResponsiveRowColumn(
                   layout:
                       ResponsiveBreakpoints.of(context).smallerThan(TABLET)
-                          ? ResponsiveRowColumnType.ROW
-                          : ResponsiveRowColumnType.COLUMN,
+                          ? ResponsiveRowColumnType.COLUMN
+                          : ResponsiveRowColumnType.ROW,
                   rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  columnMainAxisAlignment: MainAxisAlignment.start,
+                  rowCrossAxisAlignment: CrossAxisAlignment.start,
                   columnSpacing: AppSpacing.md,
                   rowSpacing: AppSpacing.md,
                   children: [
                     ResponsiveRowColumnItem(
                       rowFlex: 1,
+                      columnOrder: 1,
                       child: Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -91,18 +102,19 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                               Text(
                                 'Task Details',
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
                               SizedBox(height: AppSpacing.md),
-                              TextField(
+                              TextFormField(
                                 controller: _titleController,
                                 decoration: InputDecoration(
                                   labelText: 'Title',
                                   labelStyle: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: AppColors.textSecondary,
+                                    fontSize: 14,
                                   ),
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(
@@ -117,14 +129,19 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                               SizedBox(height: AppSpacing.md),
-                              TextField(
+                              TextFormField(
                                 controller: _descriptionController,
                                 decoration: InputDecoration(
-                                  labelText: 'Title',
+                                  labelText: 'Description',
                                   labelStyle: TextStyle(
-                                    color: AppColors.textPrimary,
+                                    color: AppColors.textSecondary,
+                                    fontSize: 14,
                                   ),
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide(
@@ -138,6 +155,10 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
+                                ),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppColors.textPrimary,
                                 ),
                               ),
                             ],
@@ -147,6 +168,8 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                     ),
 
                     ResponsiveRowColumnItem(
+                      rowFlex: 1,
+                      columnOrder: 2,
                       child: Card(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -155,45 +178,71 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                         child: Padding(
                           padding: EdgeInsets.all(AppSpacing.md),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+
                             children: [
                               Text(
                                 'Content',
                                 style: TextStyle(
-                                  fontSize: AppSpacing.lg,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.textPrimary,
                                 ),
                               ),
                               SizedBox(height: AppSpacing.md),
-                              ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxHeight:
-                                      MediaQuery.of(context).size.height * .25,
-                                ),
-                                child: SingleChildScrollView(
-                                  child: Container(
+                              ResponsiveBreakpoints.of(
+                                    context,
+                                  ).smallerThan(TABLET)
+                                  ? Container(
+                                    constraints: BoxConstraints(
+                                      maxHeight:
+                                          MediaQuery.of(context).size.height *
+                                          0.25,
+                                    ),
                                     width: double.infinity,
-                                    padding: EdgeInsets.all(AppSpacing.md),
+
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.md,
+                                    ),
                                     decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.textSecondary,
-                                        width: 1,
-                                      ),
                                       borderRadius: BorderRadius.circular(12),
-                                      color: AppColors.brandColor.withOpacity(
-                                        .01,
+                                      color: AppColors.secondaryColor,
+                                    ),
+                                    child: SingleChildScrollView(
+                                      child: BlocBuilder<TaskBloc, TaskState>(
+                                        builder: (context, state) {
+                                          return _buildTaskState(
+                                            context,
+                                            state,
+                                            task,
+                                          );
+                                        },
                                       ),
                                     ),
-                                    child: TextFormField(
-                                      controller: _contentController,
-                                      maxLines: null,
-                                      decoration: InputDecoration(
-                                        border: InputBorder.none,
+                                  )
+                                  : Expanded(
+                                    child: Container(
+                                      width: double.infinity,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: AppSpacing.md,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: AppColors.secondaryColor,
+                                      ),
+                                      child: SingleChildScrollView(
+                                        child: BlocBuilder<TaskBloc, TaskState>(
+                                          builder: (context, state) {
+                                            return _buildTaskState(
+                                              context,
+                                              state,
+                                              task,
+                                            );
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              ),
                             ],
                           ),
                         ),
@@ -201,19 +250,42 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                     ),
 
                     ResponsiveRowColumnItem(
+                      rowFlex: 1,
+                      columnOrder: 3,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
                             onPressed: () {
                               final taskBloc = context.read<TaskBloc>();
-                              taskBloc.add(
-                                RegenerateTask(
-                                  taskId: widget.taskId,
-                                  title: _titleController.text,
-                                  description: _descriptionController.text,
-                                ),
-                              );
+                              final title = _titleController.text.trim();
+                              final description =
+                                  _descriptionController.text.trim();
+                              final content = _contentController.text.trim();
+
+                              if (title.isNotEmpty && description.isNotEmpty) {
+                                taskBloc.add(
+                                  RegenerateTask(
+                                    taskId: widget.taskId,
+                                    title: title,
+                                    description: description,
+                                    content: content,
+                                  ),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Task regenerate successfully!',
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please fill in all fields'),
+                                  ),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryColor,
@@ -240,22 +312,33 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
                           ElevatedButton(
                             onPressed: () {
                               final taskBloc = context.read<TaskBloc>();
+                              final title = _titleController.text.trim();
+                              final description =
+                                  _descriptionController.text.trim();
+                              final content = task.content;
+
                               final editTask = Task(
                                 id: widget.taskId,
-                                title: _titleController.text,
-                                description: _descriptionController.text,
-                                content:
-                                    _contentController.text.isNotEmpty
-                                        ? _contentController.text
-                                        : null,
+                                title: title,
+                                description: description,
+                                content: content,
                               );
-                              taskBloc.add(EditTask(editTask: editTask));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Task updated successfully!'),
-                                ),
-                              );
-                              context.go('/list');
+
+                              if (title.isNotEmpty && description.isNotEmpty) {
+                                taskBloc.add(EditTask(editTask: editTask));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Task updated successfully!'),
+                                  ),
+                                );
+                                context.go('/list');
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please fill in all fields'),
+                                  ),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.primaryColor,
@@ -290,4 +373,33 @@ class _TaskEditScreenState extends State<TaskEditScreen> {
       ),
     );
   }
+}
+
+Widget _buildTaskState(BuildContext context, TaskState state, Task task) {
+  String content = 'Generated content will appear here...';
+  Color textColor = AppColors.textPrimary;
+  bool isCentered = false;
+
+  if (state is TaskInitial) {
+    content = 'Generated content will appear here...';
+  } else if (state is TaskLoading) {
+    content = 'Loading...';
+    isCentered = true;
+  } else if (state is TaskLoaded && state.tasks.isNotEmpty) {
+    content = task.content.toString();
+  } else if (state is TaskError) {
+    content = state.message;
+    textColor = AppColors.error;
+  } else {
+    content = content;
+  }
+
+  return MarkdownBody(
+    data: content,
+    styleSheet: MarkdownStyleSheet(
+      textAlign: isCentered ? WrapAlignment.center : WrapAlignment.start,
+      p: TextStyle(color: textColor, fontSize: 14),
+      strong: TextStyle(fontWeight: FontWeight.w600),
+    ),
+  );
 }

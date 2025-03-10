@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:gen_task/core/constants/colors.dart';
 import 'package:gen_task/core/constants/spacing.dart';
 import 'package:gen_task/presentation/bloc/tasks/task_bloc.dart';
@@ -8,14 +9,33 @@ import 'package:gen_task/presentation/bloc/tasks/task_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-class TaskCreateScreen extends StatelessWidget {
+class TaskCreateScreen extends StatefulWidget {
   const TaskCreateScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final titleController = TextEditingController();
-    final descriptionController = TextEditingController();
+  State<TaskCreateScreen> createState() => _TaskCreateScreenState();
+}
 
+class _TaskCreateScreenState extends State<TaskCreateScreen> {
+  late TextEditingController titleController;
+  late TextEditingController descriptionController;
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController();
+    descriptionController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -35,147 +55,183 @@ class TaskCreateScreen extends StatelessWidget {
           child: ResponsiveRowColumn(
             layout:
                 ResponsiveBreakpoints.of(context).smallerThan(TABLET)
-                    ? ResponsiveRowColumnType.ROW
-                    : ResponsiveRowColumnType.COLUMN,
-            rowMainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    ? ResponsiveRowColumnType.COLUMN
+                    : ResponsiveRowColumnType.ROW,
+            rowMainAxisAlignment: MainAxisAlignment.start,
+            columnMainAxisAlignment: MainAxisAlignment.start,
+            rowCrossAxisAlignment: CrossAxisAlignment.start,
             columnSpacing: AppSpacing.md,
             rowSpacing: AppSpacing.md,
             children: [
+              // Task input
               ResponsiveRowColumnItem(
-                rowFlex: 1,
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                  child: Padding(
-                    padding: EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Task Details",
-                          style: TextStyle(
-                            fontSize: AppSpacing.lg,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(height: AppSpacing.md),
-                        TextFormField(
-                          controller: titleController,
-                          decoration: InputDecoration(
-                            labelText: "Title",
-                            labelStyle: TextStyle(color: AppColors.textPrimary),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: AppColors.textSecondary,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: AppColors.primaryColor,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: AppSpacing.md),
-                        TextFormField(
-                          controller: descriptionController,
-                          decoration: InputDecoration(
-                            labelText: "Description",
-                            labelStyle: TextStyle(color: AppColors.textPrimary),
-
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: AppColors.textSecondary,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: AppColors.primaryColor,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          maxLines: 3,
-                        ),
-                      ],
+                columnOrder: 1,
+                child: SizedBox(
+                  width: 400,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                ),
-              ),
-
-              ResponsiveRowColumnItem(
-                rowFlex: 1,
-
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                  child: Padding(
-                    padding: EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Generated Content',
-                          style: TextStyle(
-                            fontSize: AppSpacing.lg,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: AppSpacing.md),
-                        Container(
-                          constraints: BoxConstraints(
-                            maxHeight: MediaQuery.of(context).size.height * .25,
-                          ),
-                          width: double.infinity,
-                          height: double.infinity,
-                          padding: EdgeInsets.all(AppSpacing.md),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.textSecondary,
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            color: AppColors.brandColor.withOpacity(.1),
-                          ),
-                          child: SingleChildScrollView(
-                            child: BlocBuilder<TaskBloc, TaskState>(
-                              builder: (context, state) {
-                                return _buildTaskState(context, state);
-                              },
+                    elevation: 2,
+                    child: Padding(
+                      padding: EdgeInsets.all(AppSpacing.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Task Details",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+                          SizedBox(height: AppSpacing.md),
+                          TextFormField(
+                            controller: titleController,
+                            decoration: InputDecoration(
+                              labelText: "Title",
+                              labelStyle: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 14,
+                              ),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: AppColors.textSecondary,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: AppColors.primaryColor,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          SizedBox(height: AppSpacing.md),
+                          TextFormField(
+                            controller: descriptionController,
+                            decoration: InputDecoration(
+                              labelText: "Description",
+                              labelStyle: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 14,
+                              ),
 
-              ResponsiveRowColumnItem(
-                child: Padding(
-                  padding: EdgeInsets.only(top: AppSpacing.lg),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildCancelButton(context),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: AppColors.textSecondary,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: AppColors.primaryColor,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            maxLines: 2,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          SizedBox(height: AppSpacing.md),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildCancelButton(context),
 
-                      SizedBox(width: AppSpacing.md),
+                              SizedBox(width: AppSpacing.md),
 
-                      _buildGenerateButton(
-                        context,
-                        titleController,
-                        descriptionController,
+                              _buildGenerateButton(
+                                context,
+                                titleController,
+                                descriptionController,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // generated content
+              ResponsiveRowColumnItem(
+                columnOrder: 2,
+                child: Expanded(
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                    child: Padding(
+                      padding: EdgeInsets.all(AppSpacing.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Generated Content',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          SizedBox(height: AppSpacing.md),
+                          ResponsiveBreakpoints.of(context).smallerThan(TABLET)
+                              ? Container(
+                                constraints: BoxConstraints(
+                                  maxHeight:
+                                      MediaQuery.of(context).size.height * 0.25,
+                                ),
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.md,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: AppColors.secondaryColor,
+                                ),
+                                child: SingleChildScrollView(
+                                  child: BlocBuilder<TaskBloc, TaskState>(
+                                    builder: (context, state) {
+                                      return _buildTaskState(context, state);
+                                    },
+                                  ),
+                                ),
+                              )
+                              : Expanded(
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.md,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: AppColors.secondaryColor,
+                                  ),
+                                  child: SingleChildScrollView(
+                                    child: BlocBuilder<TaskBloc, TaskState>(
+                                      builder: (context, state) {
+                                        return _buildTaskState(context, state);
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -229,6 +285,9 @@ Widget _buildGenerateButton(
         // Future.delayed(Duration(milliseconds: 500), () {
         //   context.go('/list');
         // });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Create task successfully!')));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please fill in all fields')),
@@ -263,17 +322,26 @@ Widget _buildTaskState(BuildContext context, TaskState state) {
     content = 'Loading...';
     isCentered = true;
   } else if (state is TaskLoaded && state.tasks.isNotEmpty) {
-    content = state.tasks.last.content as String;
+    content = state.tasks.last.content.toString();
   } else if (state is TaskError) {
     content = state.message;
     textColor = AppColors.error;
   } else {
-    content = "No content to display";
+    content = content;
   }
 
-  return Text(
-    content,
-    style: TextStyle(fontSize: AppSpacing.md, color: textColor),
-    textAlign: isCentered ? TextAlign.center : TextAlign.left,
+  // return Text(
+  //   content,
+  //   style: TextStyle(fontSize: AppSpacing.md, color: textColor),
+  //   textAlign: isCentered ? TextAlign.center : TextAlign.left,
+  // );
+
+  return MarkdownBody(
+    data: content,
+    styleSheet: MarkdownStyleSheet(
+      textAlign: isCentered ? WrapAlignment.center : WrapAlignment.start,
+      p: TextStyle(color: textColor, fontSize: 14),
+      strong: TextStyle(fontWeight: FontWeight.w600),
+    ),
   );
 }

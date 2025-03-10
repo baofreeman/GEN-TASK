@@ -43,13 +43,15 @@ class RegenerateTask extends TaskEvent {
   final String taskId;
   final String title;
   final String description;
+  final String content;
 
   const RegenerateTask({
     required this.taskId,
     required this.title,
     required this.description,
+    required this.content,
   });
 
   @override
-  List<Object?> get props => [title, description, taskId];
+  List<Object?> get props => [title, description, taskId, content];
 }
